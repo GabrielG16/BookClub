@@ -9,12 +9,12 @@ warnings.filterwarnings('ignore')
 def book_scraping():
     driver = webdriver.Chrome()
     driver.get("http://books.toscrape.com/")
+    driver.implicitly_wait(4)
     book_list = pd.DataFrame(columns=['Title', 'Price', 'Rating', 'Available'])
 
     n_pages = (int(driver.find_element_by_class_name('current').text[-2:]))
 
     for i in range(n_pages):
-        driver.implicitly_wait(4)
         soup = bs(driver.page_source, parser="lxml")
         for book in soup.find("ol", class_="row").find_all("li"):
 
@@ -31,8 +31,11 @@ def book_scraping():
 
         if i < n_pages-1:
             driver.find_element_by_class_name('next').find_element_by_tag_name('a').click()
-    
+    print('Done!')
+    print('Collecting Genres...')
     book_list = genre_classification(book_list, driver)
+    print('Done!')
+    print('Closing Application...')
     driver.quit()
 
     return book_list
@@ -61,7 +64,7 @@ def genre_classification(book_list, driver):
 def run():
 
     try:
-        book_csv = pd.read_csv('book_lista.csv')
+        book_csv = pd.read_csv('/home/gabriel/Desktop/Projetos/BookClub/book_lista.csv')
     except:
         pass
 
@@ -70,10 +73,10 @@ def run():
     if 'book_csv' in vars():
 
         book_csv = book_csv.append(book_list)
-        book_csv.to_csv('book_lista.csv')
+        book_csv.to_csv('/home/gabriel/Desktop/Projetos/BookClub/book_lista.csv')
     else:
 
-        book_list.to_csv('book_lista.csv')
+        book_list.to_csv('/home/gabriel/Desktop/Projetos/BookClub/book_lista.csv')
 
 
 if __name__ == '__main__':
